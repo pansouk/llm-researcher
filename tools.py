@@ -1,4 +1,6 @@
 import arxiv
+import os
+import requests
 
 client = arxiv.Client()
 
@@ -26,3 +28,15 @@ def fetch_arxiv_papers(title: str, papers_count: int):
         }
         papers.append(paper_info)
     return papers
+
+def download_pdf(pdf_url: str, output_file_name: str):
+    try:
+        os.makedirs("papers", exist_ok=True)
+        full_output_path = os.path.join("papers", output_file_name)
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+        with open(full_output_path, "wb") as file:
+            file.write(response.content)
+        return f"PDF downloaded successfully and saved as '{full_output_path}'."
+    except requests.exceptions.RequestException as e:
+        return f"An error occured: {e}"
